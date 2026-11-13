@@ -1,0 +1,29 @@
+Copyright (c) 2026 Ahad Nadeem. All rights reserved.
+
+This repository and everything in it (source code, documentation, designs,
+images, video and other content) is proprietary and confidential to the
+copyright holder. It is made publicly visible for evaluation only.
+
+No license is granted. Without prior written permission from the copyright
+holder, you may not:
+
+  - copy, reproduce or download the contents, except as needed to view them;
+  - use the contents, in whole or in part, in any product, service or project,
+    commercial or not;
+  - modify, adapt, translate or create derivative works from them;
+  - distribute, publish, sublicense, sell or otherwise make them available;
+  - use them to train or evaluate machine-learning models.
+
+Viewing this repository on GitHub, and the limited rights GitHub's Terms of
+Service give other GitHub users to view and fork public repositories on
+GitHub, do not grant any other right.
+
+Third-party components (listed in package.json) and third-party API
+descriptions remain under their own licenses and terms.
+
+THE CONTENTS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY ARISING FROM THE CONTENTS OR THEIR USE.
+
+For permission requests, contact the copyright holder through GitHub
+(https://github.com/alphaahad).

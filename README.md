@@ -192,3 +192,7 @@ scripts/        migrate, create workspaces, record the walkthrough
 - [docs/QA.md](docs/QA.md): QA passes and the defect log
 
 **How it was built:** a solo project over a few days, in vertical slices that were each type-checked, tested, committed and deployed. Claude Code was used as an AI pair programmer. Product, design and every decision above were reviewed and directed by me, and I can walk through any of them.
+
+## License
+
+**All rights reserved.** This repository is public for evaluation only. No one may copy, reuse, modify or distribute any of it without written permission. See [LICENSE](LICENSE).
