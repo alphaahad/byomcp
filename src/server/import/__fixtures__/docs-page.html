@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Create a ticket</title>
+    <script>tracking()</script>
+    <style>.x{color:red}</style>
+  </head>
+  <body>
+    <nav>
+      <a href="/reference/list-tickets">List tickets</a>
+      <a href="/reference/create-ticket">Create a ticket</a>
+      <a href="/reference/delete-ticket#top">Delete a ticket</a>
+      <a href="https://other.example.com/reference/x">Elsewhere</a>
+      <a href="/files/openapi.json">OpenAPI file</a>
+      <span>Sidebar link text</span>
+    </nav>
+    <main>
+      <article>
+        <h1>Create a ticket</h1>
+        <p>Creates a new support ticket. <code>POST https://api.example.com/v2/tickets</code></p>
+        <pre><code class="lang-shell">curl -X POST https://api.example.com/v2/tickets \
+  -u API_KEY:x</code></pre>
+        <h2>Body parameters</h2>
+        <table>
+          <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td>subject</td><td>string</td><td>Yes</td><td>The ticket subject</td></tr>
+          <tr><td>priority</td><td>integer</td><td>No</td><td>1 (low) to 4 (urgent)</td></tr>
+        </table>
+        <ul>
+          <li>Returns <code>201</code> with the ticket.</li>
+        </ul>
+      </article>
+    </main>
+    <footer>Footer &copy; Example</footer>
+  </body>
+</html>

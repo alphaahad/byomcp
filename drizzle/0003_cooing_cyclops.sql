@@ -1,0 +1,1 @@
+ALTER TABLE "actions" ADD COLUMN "edited" boolean DEFAULT false NOT NULL;

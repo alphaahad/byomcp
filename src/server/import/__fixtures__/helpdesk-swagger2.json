@@ -1,0 +1,52 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "Legacy Helpdesk", "version": "1.0" },
+  "host": "legacy.helpdesk.example.com",
+  "basePath": "/api",
+  "schemes": ["http", "https"],
+  "securityDefinitions": {
+    "basicAuth": { "type": "basic" }
+  },
+  "paths": {
+    "/tickets": {
+      "post": {
+        "operationId": "tickets.create",
+        "tags": ["Tickets"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["subject"],
+              "properties": { "subject": { "type": "string" } }
+            }
+          }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/tickets/{id}/notes": {
+      "post": {
+        "operationId": "tickets.create",
+        "summary": "Add a note to a ticket",
+        "consumes": ["application/x-www-form-urlencoded"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "type": "integer" },
+          { "name": "body", "in": "formData", "required": true, "type": "string", "description": "Note text" },
+          { "name": "private", "in": "formData", "type": "boolean" }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/payments/{id}/refund": {
+      "post": {
+        "operationId": "refundPayment",
+        "tags": ["Payments"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "string" }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  }
+}

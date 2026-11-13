@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: Helpdesk API
+  version: "2.1"
+servers:
+  - url: https://{subdomain}.helpdesk.example.com/api/v2
+    variables:
+      subdomain:
+        default: acme
+security:
+  - apiKeyHeader: []
+paths:
+  /tickets:
+    get:
+      operationId: listTickets
+      summary: List tickets
+      tags: [Tickets]
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, maximum: 100 }
+        - name: X-Api-Key
+          in: header
+          required: true
+          schema: { type: string }
+        - name: X-Request-Source
+          in: header
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Ticket" }
+    post:
+      operationId: createTicket
+      summary: Create a ticket
+      tags: [Tickets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TicketInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Ticket" }
+  /tickets/{ticket_id}:
+    parameters:
+      - name: ticket_id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: getTicket
+      summary: View a ticket
+      tags: [Tickets]
+      responses:
+        "200": { description: OK }
+    delete:
+      operationId: deleteTicket
+      summary: Delete a ticket
+      tags: [Tickets]
+      responses:
+        "204": { description: Deleted }
+    head:
+      operationId: headTicket
+      responses:
+        "200": { description: OK }
+  /tickets/{ticket_id}/archive:
+    post:
+      tags: [Tickets]
+      parameters:
+        - name: ticket_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: OK }
+  /contacts/{contact_id}:
+    patch:
+      tags: [Contacts]
+      description: Update the fields you send. Other fields stay the same.
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                phone: { type: string, nullable: true }
+      responses:
+        "200": { description: OK }
+  /agents:
+    get:
+      responses:
+        "200": { description: OK }
+components:
+  securitySchemes:
+    apiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  schemas:
+    TicketInput:
+      type: object
+      required: [subject]
+      properties:
+        subject: { type: string }
+        description: { type: string }
+        priority: { type: integer, enum: [1, 2, 3, 4] }
+        id: { type: integer, readOnly: true }
+    Ticket:
+      type: object
+      properties:
+        id: { type: integer }
+        subject: { type: string }

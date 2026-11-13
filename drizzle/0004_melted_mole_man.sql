@@ -1,0 +1,1 @@
+ALTER TABLE "connectors" ADD COLUMN "allow_url_token" boolean DEFAULT false NOT NULL;

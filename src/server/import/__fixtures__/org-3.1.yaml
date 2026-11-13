@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info:
+  title: Org Chart API
+  version: "1"
+servers:
+  - url: /v1
+components:
+  securitySchemes:
+    oauth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://org.example.com/oauth/token
+          scopes: {}
+    bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        manager:
+          $ref: "#/components/schemas/Employee"
+        reports:
+          type: array
+          items:
+            $ref: "#/components/schemas/Employee"
+        address:
+          $ref: "https://evil.example.com/schemas/address.json"
+        badge:
+          $ref: "file:///etc/passwd"
+security:
+  - oauth: []
+  - bearer: []
+paths:
+  /employees:
+    post:
+      operationId: createEmployee
+      summary: Add an employee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Employee"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+  /employees/bulk:
+    post:
+      operationId: bulkImport
+      summary: Import employees in bulk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { type: object }
+      responses:
+        "202": { description: Accepted }

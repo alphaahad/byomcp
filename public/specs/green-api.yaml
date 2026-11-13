@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  title: GREEN-API for WhatsApp (send, read, status)
+  version: "1"
+  description: >-
+    Written by BYOMCP from GREEN-API's method reference (https://green-api.com/en/docs/api/),
+    which has no OpenAPI file. GREEN-API puts the instance token in the path; BYOMCP fills it
+    in from the saved key, so the AI employee never sees it.
+servers:
+  - url: https://{host}/waInstance{idInstance}
+    variables:
+      host:
+        default: 1103.api.green-api.com
+      idInstance:
+        default: "1101000001"
+paths:
+  /getStateInstance/{apiTokenInstance}:
+    get:
+      operationId: get_instance_state
+      summary: Check the WhatsApp connection
+      description: Says whether the instance is authorized (connected to WhatsApp) and ready to send.
+      parameters:
+        - { name: apiTokenInstance, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: The state, e.g. authorized. }
+  /sendMessage/{apiTokenInstance}:
+    post:
+      operationId: send_message
+      summary: Send a WhatsApp message
+      parameters:
+        - { name: apiTokenInstance, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [chatId, message]
+              properties:
+                chatId:
+                  type: string
+                  description: "The chat: the phone number with country code and @c.us, e.g. 919812345678@c.us (groups end in @g.us)."
+                message: { type: string, description: The text to send (up to 20,000 characters). }
+                quotedMessageId: { type: string, description: The ID of a message to reply to. }
+      responses:
+        "200": { description: The sent message's ID. }
+  /getChatHistory/{apiTokenInstance}:
+    post:
+      operationId: get_chat_history
+      summary: Read a chat's messages
+      description: The most recent messages in one chat, newest first.
+      parameters:
+        - { name: apiTokenInstance, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [chatId]
+              properties:
+                chatId: { type: string, description: "The chat, e.g. 919812345678@c.us." }
+                count: { type: integer, minimum: 1, maximum: 100, description: "How many messages (default 100)." }
+      responses:
+        "200": { description: The messages. }
+  /lastIncomingMessages/{apiTokenInstance}:
+    get:
+      operationId: last_incoming_messages
+      summary: See recent incoming messages
+      description: Messages received across all chats in the last few minutes (default 24 hours).
+      parameters:
+        - { name: apiTokenInstance, in: path, required: true, schema: { type: string } }
+        - { name: minutes, in: query, description: "How far back to look, in minutes (default 1440).", schema: { type: integer, minimum: 1 } }
+      responses:
+        "200": { description: The messages. }
+  /lastOutgoingMessages/{apiTokenInstance}:
+    get:
+      operationId: last_outgoing_messages
+      summary: See recent sent messages
+      parameters:
+        - { name: apiTokenInstance, in: path, required: true, schema: { type: string } }
+        - { name: minutes, in: query, description: "How far back to look, in minutes (default 1440).", schema: { type: integer, minimum: 1 } }
+      responses:
+        "200": { description: The messages. }
+  /checkWhatsapp/{apiTokenInstance}:
+    post:
+      operationId: check_whatsapp
+      summary: Check a number has WhatsApp
+      parameters:
+        - { name: apiTokenInstance, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phoneNumber]
+              properties:
+                phoneNumber: { type: integer, description: "The number with country code, digits only, e.g. 919812345678." }
+      responses:
+        "200": { description: Whether the number has WhatsApp. }

@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: WooCommerce REST API v3 (orders, products, customers)
+  version: "3"
+  description: >-
+    Written by BYOMCP from WooCommerce's REST API reference
+    (https://woocommerce.github.io/woocommerce-rest-api-docs/), which has no official OpenAPI file.
+servers:
+  - url: https://{store}/wp-json/wc/v3
+    variables:
+      store:
+        default: shop.example.com
+        description: Your store's web address, without https://.
+security:
+  - basicAuth: []
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: The Consumer Key as the username and the Consumer Secret as the password.
+  parameters:
+    page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1 }
+    per_page:
+      name: per_page
+      in: query
+      description: Results per page (up to 100).
+      schema: { type: integer, minimum: 1, maximum: 100 }
+    search:
+      name: search
+      in: query
+      description: Search text.
+      schema: { type: string }
+paths:
+  /orders:
+    get:
+      operationId: list_orders
+      summary: List orders
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [any, pending, processing, on-hold, completed, cancelled, refunded, failed] }
+        - name: customer
+          in: query
+          description: Only this customer's orders (customer ID).
+          schema: { type: integer }
+        - name: after
+          in: query
+          description: Only orders placed after this time (ISO 8601).
+          schema: { type: string, format: date-time }
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/per_page"
+      responses:
+        "200": { description: The orders. }
+  /orders/{id}:
+    get:
+      operationId: get_order
+      summary: Retrieve an order
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: The order. }
+    put:
+      operationId: update_order
+      summary: Update an order
+      description: Change an order's status or add a note for the customer.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [pending, processing, on-hold, completed, cancelled, refunded, failed] }
+                customer_note: { type: string, description: A note the customer can see. }
+      responses:
+        "200": { description: The updated order. }
+  /orders/{order_id}/notes:
+    get:
+      operationId: list_order_notes
+      summary: List an order's notes
+      parameters:
+        - { name: order_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: The notes. }
+    post:
+      operationId: add_order_note
+      summary: Add a note to an order
+      parameters:
+        - { name: order_id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [note]
+              properties:
+                note: { type: string }
+                customer_note: { type: boolean, description: "Also email it to the customer (default: false)." }
+      responses:
+        "201": { description: The note. }
+  /products:
+    get:
+      operationId: list_products
+      summary: List products
+      parameters:
+        - $ref: "#/components/parameters/search"
+        - { name: sku, in: query, schema: { type: string } }
+        - { name: stock_status, in: query, schema: { type: string, enum: [instock, outofstock, onbackorder] } }
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/per_page"
+      responses:
+        "200": { description: The products. }
+  /products/{id}:
+    get:
+      operationId: get_product
+      summary: Retrieve a product
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: The product. }
+  /customers:
+    get:
+      operationId: list_customers
+      summary: List customers
+      parameters:
+        - { name: email, in: query, description: Only the customer with this email., schema: { type: string } }
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/per_page"
+      responses:
+        "200": { description: The customers. }
+  /customers/{id}:
+    get:
+      operationId: get_customer
+      summary: Retrieve a customer
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: The customer. }

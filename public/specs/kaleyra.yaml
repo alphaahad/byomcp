@@ -1,0 +1,63 @@
+openapi: 3.0.3
+info:
+  title: Kaleyra SMS (send and logs)
+  version: "2"
+  description: >-
+    Written by BYOMCP from Kaleyra's SMS API reference (https://developers.kaleyra.io/), which
+    publishes only per-endpoint fragments. Sending uses form fields, as Kaleyra documents.
+servers:
+  - url: https://api.{pod}.kaleyra.io
+    variables:
+      pod:
+        default: in
+        enum: [in, ap, eu]
+security:
+  - apiKey: []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: api-key
+  parameters:
+    sid:
+      name: sid
+      in: path
+      required: true
+      description: Your account SID, shown next to your API key in kaleyra.io (Developers, then API Keys).
+      schema: { type: string }
+paths:
+  /v2/{sid}/messages:
+    post:
+      operationId: send_sms
+      summary: Send an SMS
+      description: >-
+        Sends an SMS from a registered sender, either from a pre-registered template (template_id
+        and template_data) or with a body. type is MKT (marketing), TXN (transactional) or OTP.
+      parameters:
+        - $ref: "#/components/parameters/sid"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [to, sender]
+              properties:
+                to: { type: string, description: "The phone number with country code, e.g. 919812345678. Separate several with commas." }
+                sender: { type: string, description: Your registered sender ID, e.g. KLRHXA. }
+                body: { type: string, description: The message text. Needed when there's no template_id. }
+                template_id: { type: string, description: A pre-registered template's ID. Needed when there's no body. }
+                template_data: { type: string, description: "Values for the template's placeholders as JSON, e.g. {\"OTP\": 12345}." }
+                type: { type: string, enum: [MKT, TXN, OTP] }
+      responses:
+        "200": { description: The message IDs. }
+  /v1/{sid}/messages/logs:
+    get:
+      operationId: get_sms_logs
+      summary: See SMS logs
+      description: Recent SMS sent from the account, with their delivery status.
+      parameters:
+        - $ref: "#/components/parameters/sid"
+      responses:
+        "200": { description: The logs. }

@@ -1,0 +1,510 @@
+@import "tailwindcss";
+
+/*
+ * Design language: deduced from UnleashX's product UI (docs/DESIGN.md).
+ * White surfaces on a light canvas, one violet primary, tinted tags,
+ * underline tabs, a left sidebar and a breadcrumb top bar. Font: Outfit.
+ * Every text colour pairing is checked for WCAG AA (≥ 4.5:1) in both themes.
+ *
+ * Role classes (.window = card, .titlebar = card header, .bevel-in = well,
+ * .stamp = tag, …) are shared with src/components/ui.tsx.
+ */
+:root {
+  --bg: #f7f7f9; /* canvas */
+  --surface: #ffffff;
+  --separator: #e7e7ec; /* borders and dividers */
+  --fill: #f2f2f5; /* hover, wells */
+  --ink: #1f1f29;
+  --ink-soft: #6b6b7b;
+  --signal: #6d28d9; /* primary violet */
+  --signal-hover: #5b21b6;
+  --signal-ink: #ffffff;
+  --signal-tint: #f3eeff;
+  --ok: #15803d;
+  --ok-tint: #ecfdf3;
+  --warn: #c2410c;
+  --warn-tint: #fff4ed;
+  --info: #1d4ed8;
+  --info-tint: #eff4ff;
+  --alarm: #b91c1c;
+  --alarm-tint: #fef2f2;
+  --badge: #dc2626;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.04);
+  --radius: 12px;
+  --radius-sm: 8px;
+  color-scheme: light;
+}
+
+/* Dark: follows the system unless the theme toggle picked one (data-theme on <html>). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0e12;
+    --surface: #17171c;
+    --separator: #2a2a33;
+    --fill: #222229;
+    --ink: #ececf1;
+    --ink-soft: #a1a1b0;
+    --signal: #a78bfa;
+    --signal-hover: #c4b5fd;
+    --signal-ink: #0e0e12;
+    --signal-tint: #2a1f47;
+    --ok: #4ade80;
+    --ok-tint: #0f2a1a;
+    --warn: #fb923c;
+    --warn-tint: #2e1a0c;
+    --info: #93c5fd;
+    --info-tint: #13223d;
+    --alarm: #f87171;
+    --alarm-tint: #321416;
+    --badge: #ef4444;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0e12;
+  --surface: #17171c;
+  --separator: #2a2a33;
+  --fill: #222229;
+  --ink: #ececf1;
+  --ink-soft: #a1a1b0;
+  --signal: #a78bfa;
+  --signal-hover: #c4b5fd;
+  --signal-ink: #0e0e12;
+  --signal-tint: #2a1f47;
+  --ok: #4ade80;
+  --ok-tint: #0f2a1a;
+  --warn: #fb923c;
+  --warn-tint: #2e1a0c;
+  --info: #93c5fd;
+  --info-tint: #13223d;
+  --alarm: #f87171;
+  --alarm-tint: #321416;
+  --badge: #ef4444;
+  --shadow: none;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-signal: var(--signal);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-info: var(--info);
+  --color-alarm: var(--alarm);
+  --font-sans: var(--font-outfit), system-ui, sans-serif;
+  --font-display: var(--font-outfit), system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+}
+
+/* Element defaults live in the base layer so component classes (e.g. .btn on a link) win. */
+@layer base {
+  html,
+  body {
+    background: var(--bg);
+  }
+
+  body {
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  a {
+    color: var(--signal);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* Card: white, hairline border, faint shadow. */
+  .window {
+    background: var(--surface);
+    border: 1px solid var(--separator);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  /* Card header: a plain title row, no bar. */
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem 0.25rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .titlebar h1,
+  .titlebar h2 {
+    font: inherit;
+    letter-spacing: inherit;
+  }
+
+  /* Well: lists, code, result panes inside a card. */
+  .bevel-in {
+    background: var(--bg);
+    border: 1px solid var(--separator);
+    border-radius: var(--radius-sm);
+  }
+  .bevel-out {
+    background: var(--surface);
+    border-bottom: 1px solid var(--separator);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--separator);
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease-out,
+      border-color 120ms ease-out,
+      transform 100ms ease-out;
+  }
+  .btn:hover:not(:disabled) {
+    background: var(--fill);
+    text-decoration: none;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: var(--signal-ink);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--signal-hover);
+    border-color: var(--signal-hover);
+  }
+  .btn-sm {
+    min-height: 1.875rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  /* Suggestion chip: pill outline. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid var(--separator);
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      border-color 120ms ease-out,
+      background-color 120ms ease-out;
+  }
+  .chip:hover {
+    border-color: var(--signal);
+    background: var(--signal-tint);
+    text-decoration: none;
+  }
+
+  .field {
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--separator);
+    border-radius: var(--radius-sm);
+    transition:
+      border-color 120ms ease-out,
+      box-shadow 120ms ease-out;
+  }
+  .field::placeholder {
+    color: var(--ink-soft);
+  }
+  .field:focus-visible {
+    outline: none;
+    border-color: var(--signal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 22%, transparent);
+  }
+  .field:disabled {
+    background: var(--fill);
+    color: var(--ink-soft);
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--alarm);
+  }
+
+  /* Section inside a card: quiet caption over a bordered group. */
+  .groupbox {
+    border: 1px solid var(--separator);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem 1rem;
+    margin: 0;
+    min-width: 0;
+    background: var(--surface);
+  }
+  .groupbox > legend {
+    padding: 0 0.375rem;
+    margin-left: -0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  details.groupbox > summary {
+    list-style: none;
+  }
+  details.groupbox > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Card footnote. */
+  .statusbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--separator);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+  .statusbar > *:not(:last-child)::after {
+    content: "·";
+    padding: 0 0.5rem;
+  }
+
+  .chk {
+    appearance: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: none;
+    display: inline-grid;
+    place-content: center;
+    border-radius: 5px;
+    border: 1.5px solid var(--ink-soft);
+    background: var(--surface);
+    cursor: pointer;
+    transition:
+      background-color 120ms ease-out,
+      border-color 120ms ease-out;
+  }
+  .chk[type="radio"] {
+    border-radius: 9999px;
+  }
+  .chk:checked {
+    background: var(--signal);
+    border-color: var(--signal);
+  }
+  .chk:checked::after {
+    content: "";
+    width: 0.65rem;
+    height: 0.65rem;
+    background: var(--signal-ink);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+  .chk[type="radio"]:checked::after {
+    clip-path: circle(32%);
+  }
+  .chk:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Switch (role="switch" checkbox). */
+  .switch {
+    appearance: none;
+    position: relative;
+    width: 2.25rem;
+    height: 1.25rem;
+    flex: none;
+    border-radius: 9999px;
+    background: var(--separator);
+    cursor: pointer;
+    transition: background-color 150ms ease-out;
+  }
+  .switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: transform 150ms ease-out;
+  }
+  .switch:checked {
+    background: var(--signal);
+  }
+  .switch:checked::after {
+    transform: translateX(1rem);
+  }
+  .switch:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .progress {
+    display: flex;
+    height: 0.375rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    background: var(--fill);
+  }
+  .progress > span {
+    flex: 1 0 0;
+    max-width: calc(100% / 24);
+    background: var(--signal);
+  }
+
+  /* Tag: small tinted label. The word carries the meaning; colour only reinforces it. */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    background: var(--signal-tint);
+    color: var(--signal);
+  }
+  .stamp.text-ok {
+    background: var(--ok-tint);
+  }
+  .stamp.text-alarm {
+    background: var(--alarm-tint);
+  }
+  .stamp.text-warn {
+    background: var(--warn-tint);
+  }
+  .stamp.text-info {
+    background: var(--info-tint);
+  }
+  .stamp-quiet {
+    background: var(--fill);
+    color: var(--ink-soft);
+  }
+
+  /* Underline tabs (violet bar under the active tab). */
+  .tabs {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--separator);
+    scrollbar-width: none;
+  }
+  .tabs > a {
+    position: relative;
+    padding: 0.625rem 0;
+    color: var(--ink-soft);
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .tabs > a:hover {
+    color: var(--ink);
+  }
+  .tabs > a[aria-current="page"] {
+    color: var(--signal);
+  }
+  .tabs > a[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--signal);
+  }
+
+  /* Sidebar nav item: active = tinted fill with a violet hairline. */
+  .navitem {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .navitem:hover {
+    background: var(--fill);
+    text-decoration: none;
+  }
+  .navitem[aria-current="page"] {
+    background: var(--signal-tint);
+    border-color: color-mix(in srgb, var(--signal) 45%, transparent);
+  }
+
+  .tearoff {
+    background: var(--bg);
+    border: 1px solid var(--separator);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --separator: var(--ink-soft);
+  }
+}

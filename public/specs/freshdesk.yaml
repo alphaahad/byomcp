@@ -1,0 +1,199 @@
+openapi: 3.0.3
+info:
+  title: Freshdesk API v2 (tickets and contacts)
+  version: "2"
+  description: >-
+    Written by BYOMCP from Freshdesk's API reference (https://developers.freshdesk.com/api/),
+    which has no official OpenAPI file. Covers tickets, conversations and contacts.
+servers:
+  - url: https://{domain}.freshdesk.com
+    variables:
+      domain:
+        default: yourcompany
+        description: Your helpdesk name, the part before .freshdesk.com.
+security:
+  - basicAuth: []
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: The API key as the username and X as the password.
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: The ticket ID.
+      schema: { type: integer }
+    page:
+      name: page
+      in: query
+      description: Page number, starting at 1.
+      schema: { type: integer, minimum: 1 }
+    per_page:
+      name: per_page
+      in: query
+      description: Results per page (up to 100).
+      schema: { type: integer, minimum: 1, maximum: 100 }
+paths:
+  /api/v2/tickets:
+    get:
+      operationId: list_tickets
+      summary: List tickets
+      description: Lists tickets, newest first. By default only tickets created in the last 30 days; use updated_since for older ones.
+      parameters:
+        - name: filter
+          in: query
+          description: A predefined filter.
+          schema: { type: string, enum: [new_and_my_open, watching, spam, deleted] }
+        - name: requester_id
+          in: query
+          description: Only tickets from this contact.
+          schema: { type: integer }
+        - name: email
+          in: query
+          description: Only tickets from the contact with this email.
+          schema: { type: string }
+        - name: updated_since
+          in: query
+          description: Only tickets updated since this time (ISO 8601, e.g. 2026-01-01T00:00:00Z).
+          schema: { type: string, format: date-time }
+        - name: include
+          in: query
+          description: Extra details to include.
+          schema: { type: string, enum: [requester, stats, description] }
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/per_page"
+      responses:
+        "200": { description: The tickets. }
+  /api/v2/tickets/{id}:
+    get:
+      operationId: get_ticket
+      summary: View a ticket
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - name: include
+          in: query
+          description: Add the first 10 conversations or the requester.
+          schema: { type: string, enum: [conversations, requester, company, stats] }
+      responses:
+        "200": { description: The ticket. }
+    put:
+      operationId: update_ticket
+      summary: Update a ticket
+      description: Change a ticket's status, priority, assignee, group or tags.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: integer, enum: [2, 3, 4, 5], description: "2 Open, 3 Pending, 4 Resolved, 5 Closed." }
+                priority: { type: integer, enum: [1, 2, 3, 4], description: "1 Low, 2 Medium, 3 High, 4 Urgent." }
+                responder_id: { type: integer, description: The agent to assign. }
+                group_id: { type: integer, description: The group to assign. }
+                type: { type: string, description: The ticket type, e.g. Question or Incident. }
+                tags: { type: array, items: { type: string }, description: Replaces the ticket's tags. }
+      responses:
+        "200": { description: The updated ticket. }
+  /api/v2/tickets/{id}/conversations:
+    get:
+      operationId: list_ticket_conversations
+      summary: List a ticket's conversations
+      description: Replies and notes on the ticket, oldest first.
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/per_page"
+      responses:
+        "200": { description: The conversations. }
+  /api/v2/tickets/{id}/reply:
+    post:
+      operationId: reply_to_ticket
+      summary: Reply to a ticket
+      description: Sends a reply to the requester.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string, description: The reply, in HTML. }
+                cc_emails: { type: array, items: { type: string }, description: Extra addresses to copy. }
+      responses:
+        "201": { description: The reply. }
+  /api/v2/tickets/{id}/notes:
+    post:
+      operationId: add_ticket_note
+      summary: Add a note to a ticket
+      description: Adds a note. Private notes are only seen by agents.
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string, description: The note, in HTML. }
+                private: { type: boolean, description: "Only agents can see it (default: true)." }
+      responses:
+        "201": { description: The note. }
+  /api/v2/search/tickets:
+    get:
+      operationId: search_tickets
+      summary: Search tickets
+      description: >-
+        Filters tickets with a query in double quotes, e.g. "status:2 AND priority:4" or
+        "tag:'refund'". Returns up to 30 per page, 10 pages.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: The filter, wrapped in double quotes.
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 10 }
+      responses:
+        "200": { description: Matching tickets. }
+  /api/v2/contacts:
+    get:
+      operationId: list_contacts
+      summary: List contacts
+      parameters:
+        - name: email
+          in: query
+          description: Only the contact with this email.
+          schema: { type: string }
+        - name: phone
+          in: query
+          schema: { type: string }
+        - name: company_id
+          in: query
+          schema: { type: integer }
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/per_page"
+      responses:
+        "200": { description: The contacts. }
+  /api/v2/contacts/{contact_id}:
+    get:
+      operationId: get_contact
+      summary: View a contact
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: The contact. }

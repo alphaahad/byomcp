@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: Databricks workspace API (jobs, clusters, SQL)
+  version: "2"
+  description: >-
+    Written by BYOMCP from Databricks' REST API reference (https://docs.databricks.com/api/),
+    which has no public OpenAPI file. Covers jobs, job runs, clusters and SQL warehouses.
+servers:
+  - url: https://{workspace}
+    variables:
+      workspace:
+        default: dbc-1234abcd-5678.cloud.databricks.com
+        description: Your workspace address, without https://.
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: A personal access token.
+paths:
+  /api/2.2/jobs/list:
+    get:
+      operationId: list_jobs
+      summary: List jobs
+      parameters:
+        - { name: name, in: query, description: Only jobs with exactly this name., schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }
+        - { name: page_token, in: query, description: From the previous page's next_page_token., schema: { type: string } }
+      responses:
+        "200": { description: The jobs. }
+  /api/2.2/jobs/get:
+    get:
+      operationId: get_job
+      summary: Get a job
+      parameters:
+        - { name: job_id, in: query, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: The job's settings. }
+  /api/2.2/jobs/run-now:
+    post:
+      operationId: run_job_now
+      summary: Run a job now
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [job_id]
+              properties:
+                job_id: { type: integer }
+                job_parameters: { type: object, additionalProperties: { type: string }, description: Values for the job's parameters. }
+      responses:
+        "200": { description: The new run's ID. }
+  /api/2.2/jobs/runs/list:
+    get:
+      operationId: list_job_runs
+      summary: List job runs
+      parameters:
+        - { name: job_id, in: query, description: Only this job's runs., schema: { type: integer } }
+        - { name: active_only, in: query, schema: { type: boolean } }
+        - { name: completed_only, in: query, schema: { type: boolean } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 25 } }
+      responses:
+        "200": { description: The runs, newest first. }
+  /api/2.2/jobs/runs/get:
+    get:
+      operationId: get_job_run
+      summary: Get a job run
+      parameters:
+        - { name: run_id, in: query, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: The run, with its state. }
+  /api/2.1/clusters/list:
+    get:
+      operationId: list_clusters
+      summary: List clusters
+      responses:
+        "200": { description: The clusters. }
+  /api/2.1/clusters/get:
+    get:
+      operationId: get_cluster
+      summary: Get a cluster
+      parameters:
+        - { name: cluster_id, in: query, required: true, schema: { type: string } }
+      responses:
+        "200": { description: The cluster. }
+  /api/2.0/sql/warehouses:
+    get:
+      operationId: list_sql_warehouses
+      summary: List SQL warehouses
+      responses:
+        "200": { description: The warehouses. }
+  /api/2.0/sql/statements:
+    post:
+      operationId: run_sql_statement
+      summary: Run a SQL statement
+      description: Runs SQL on a warehouse and waits up to wait_timeout for the result. SQL can change data, so this waits for approval.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [warehouse_id, statement]
+              properties:
+                warehouse_id: { type: string }
+                statement: { type: string, description: The SQL to run. }
+                catalog: { type: string }
+                schema: { type: string }
+                wait_timeout: { type: string, description: "How long to wait, 5s to 50s (default 10s).", default: 30s }
+      responses:
+        "200": { description: The statement's status and, when finished, its result. }
+  /api/2.0/sql/statements/{statement_id}:
+    get:
+      operationId: get_sql_statement
+      summary: Get a SQL statement's result
+      parameters:
+        - { name: statement_id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: The status and result. }
