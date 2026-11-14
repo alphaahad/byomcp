@@ -6,7 +6,7 @@ import { countPending } from "@/server/approvals/approvals";
 import { requireWorkspace } from "@/server/auth/guard";
 import { listConnectors } from "@/server/connectors/queries";
 import { totalAiSpend } from "@/server/connectors/setup-state";
-import { IconBell, IconBook, IconHome, IconInbox, IconLogout, IconMenu, IconPlus, IconUsers } from "./icons";
+import { IconBell, IconBook, IconChart, IconHome, IconInbox, IconLogout, IconMenu, IconPlus, IconUsers } from "./icons";
 import { NavLink } from "./nav-link";
 import { ThemeToggle } from "./theme-toggle";
 import { Monogram, formatUsd } from "./ui";
@@ -158,15 +158,20 @@ async function WorkspaceBadge() {
   );
 }
 
-/** Only the owner sees the Workspaces page. */
+/** Only the owner sees the Workspaces and Usage pages. */
 async function OwnerLinks() {
   await connection();
   const ws = await requireWorkspace();
   if (!ws.isOwner) return null;
   return (
-    <NavLink href="/workspaces" match="/workspaces">
-      <IconUsers size={18} className="text-signal" /> Workspaces
-    </NavLink>
+    <>
+      <NavLink href="/workspaces" match="/workspaces">
+        <IconUsers size={18} className="text-signal" /> Workspaces
+      </NavLink>
+      <NavLink href="/usage" match="/usage">
+        <IconChart size={18} className="text-signal" /> Usage
+      </NavLink>
+    </>
   );
 }
 

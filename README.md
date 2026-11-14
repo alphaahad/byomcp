@@ -48,7 +48,7 @@ Then try a real catalog app, such as **Zendesk**: 675 actions read with no AI, p
 | **Test** | **Talk to it** (an AI employee using the real tools, with every step shown) and a form-based console; raw MCP messages are there for engineers. | [Talk to it](docs/media/05-talk.png) |
 | **Stay in control** | An approvals inbox (runs exactly once, expires after 24 hours, optional email alerts), an activity log with secrets hidden, health with "Needs reconnect", and a Setup panel on every page that always shows the next step. | [Approvals](docs/media/06-approvals.png) · [Activity](docs/media/07-activity.png) |
 
-Around that: **one workspace per passcode** (the owner sees usage per workspace and can revoke one), Light/Dark/Auto themes, phone layouts, and keyboard and screen-reader support.
+Around that: **one workspace per passcode** (the owner gets a Usage page across all workspaces, with a drill-down per workspace, and can revoke any of them), Light/Dark/Auto themes, phone layouts, and keyboard and screen-reader support.
 
 ## Where AI is used (and where it isn't)
 

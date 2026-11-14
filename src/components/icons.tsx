@@ -129,3 +129,10 @@ export const IconUsers = (p: P) => (
     <path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8" />
   </Svg>
 );
+export const IconChart = (p: P) => (
+  <Svg {...p}>
+    <path d="M4 20V4" />
+    <path d="M4 20h16" />
+    <path d="M8 16v-4M12 16V8M16 16v-6" />
+  </Svg>
+);

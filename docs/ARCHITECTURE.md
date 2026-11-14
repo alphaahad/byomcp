@@ -176,3 +176,13 @@ Approval created ──► after(): notifyApprovalWaiting ── once per reques
 ```
 
 New tables: `app_requests` ("tell us which app"), `chat_usage` (test chat cap and cost). New columns: `workspaces.notify_email`, `approvals.notified_at`. New credential kind: `oauth` (access and refresh tokens, expiries).
+
+## Owner Usage page
+
+```
+/usage (requireOwner) ── usageTotals · usageByDay (30 days, India time) · usageByWorkspace
+/usage/:workspace     ── usageByDay(workspace) · workspaceUsageDetail (apps, latest calls, imports, chats, sign-ins, requests)
+login ── recordSignIn: workspaces.last_sign_in_at + one sign_ins row (batch)
+```
+
+`src/server/workspaces/usage.ts` reads metadata only (never inputs, results, payloads, credentials or tokens). New table: `sign_ins` (workspace, time).

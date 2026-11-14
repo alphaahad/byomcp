@@ -5,7 +5,7 @@ import "server-only";
  */
 import { and, desc, eq, gt, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/server/db";
-import { appRequests, connectorVersions, connectors, toolCalls, workspaces } from "@/server/db/schema";
+import { appRequests, connectorVersions, connectors, signIns, toolCalls, workspaces } from "@/server/db/schema";
 import { hashPasscode, passcodeMatches } from "@/server/auth/session";
 
 export type Workspace = { id: string; label: string; isOwner: boolean };
@@ -45,7 +45,11 @@ export async function workspaceForPasscode(attempt: string, ownerPasscode: strin
 }
 
 export async function recordSignIn(workspaceId: string) {
-  await db().update(workspaces).set({ lastSignInAt: new Date() }).where(eq(workspaces.id, workspaceId));
+  const d = db();
+  await d.batch([
+    d.update(workspaces).set({ lastSignInAt: new Date() }).where(eq(workspaces.id, workspaceId)),
+    d.insert(signIns).values({ workspaceId }),
+  ]);
 }
 
 /** A live (not revoked) workspace by id. */

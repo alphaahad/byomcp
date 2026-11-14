@@ -372,3 +372,16 @@ export const loginAttempts = pgTable(
   },
   (t) => [index("login_attempts_ip_created_idx").on(t.ipHash, t.createdAt), index("login_attempts_created_idx").on(t.createdAt)],
 );
+
+/** Every successful sign-in (workspace and time only), for the owner's Usage page. */
+export const signIns = pgTable(
+  "sign_ins",
+  {
+    id: id(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("sign_ins_workspace_created_idx").on(t.workspaceId, t.createdAt), index("sign_ins_created_idx").on(t.createdAt)],
+);
